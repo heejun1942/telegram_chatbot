@@ -1,8 +1,9 @@
 from flask import Flask, render_template, request
 from decouple import config
-from bs4 import BeautifulSoup
 import requests
 import random
+from datetime import datetime
+from datetime import date, timedelta
 
 app = Flask(__name__)
 
@@ -27,8 +28,8 @@ def send():
     requests.get(f'{url}{token}/sendmessage?chat_id={chat_id}&text={text}')
     return render_template('send.html')
 
-#telegram에서 정보를 받는 코드
 #telegram 이 나에게 주는 방식이 POST.
+#webhook으로 설정한 url?
 @app.route(f'/{token}', methods=["POST"])
 def telegram():
     # 챗봇에서 내가쓴 데이터 읽어오기
@@ -44,14 +45,17 @@ def telegram():
         numbers = range(1,46)
         return_text= sorted(random.sample(numbers, 6))
     elif text=="영화":
-        key="a42fdafda11bba9cf32dcbf11326b918"
-        day="20191219"
-        url= f"http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json?key={key}&targetDt={day}"
-        req = requests.get(url).json()
+        movie_key="a42fdafda11bba9cf32dcbf11326b918"
+
+        yesterday = date.today() - timedelta(1)
+        day=yesterday.strftime("%Y%m%d")
+
+        movie_url= f"http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json?key={movie_key}&targetDt={day}"
+        req = requests.get(movie_url).json()
         movie=req["boxOfficeResult"]["dailyBoxOfficeList"][0]["movieNm"]
-        return_text= f"박스오피스 1위는 {movie}입니다."
+        return_text= f"어제 박스오피스 1위는 {movie}입니다."
     else:
-        return_text="지금 지원하는 채팅은 '안녕'입니다."
+        return_text="지원하지 않는 단어입니다."
 
     # 챗봇에게 다시보내기
     requests.get(f'{url}{token}/sendmessage?chat_id={re_id}&text={return_text}')
