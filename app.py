@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request
 from decouple import config
-from bs4 import BeautifulSoup
 import requests
 import random
 
@@ -46,8 +45,8 @@ def telegram():
     elif text=="영화":
         key="a42fdafda11bba9cf32dcbf11326b918"
         day="20191219"
-        url= f"http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json?key={key}&targetDt={day}"
-        req = requests.get(url).json()
+        movie_url= f"http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json?key={key}&targetDt={day}"
+        req = requests.get(movie_url).json()
         movie=req["boxOfficeResult"]["dailyBoxOfficeList"][0]["movieNm"]
         return_text= f"박스오피스 1위는 {movie}입니다."
     else:
